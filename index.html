@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Geburtstagsgeschenk 💖</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Roboto&display=swap" rel="stylesheet">
+<style>
+  body {
+    font-family: 'Roboto', sans-serif;
+    text-align: center;
+    background: #fff0f5;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  h1, h2 {
+    font-family: 'Pacifico', cursive;
+    font-size: clamp(2rem, 5vw, 3em);
+    margin: 20px 0;
+  }
+
+  #banner {
+    font-family: 'Pacifico', cursive;
+    font-size: 3em;
+    color: #ff1493;
+    margin-bottom: 30px;
+    display: none;
+    opacity: 0;
+    transition: opacity 1s ease;
+  }
+  #banner.show { opacity:1; display:block; }
+
+  #dateInput, #birthdayCake, #birthdayContent {
+    display: none;
+    width: 100%;
+    max-width: 800px;
+  }
+
+  button {
+    margin: 20px auto;
+    padding: 20px 40px;
+    font-size: 1.8em;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(45deg,#ff69b4,#ffb6c1);
+    color: white;
+    transition: transform 0.3s, background 0.3s;
+    display: inline-block;
+  }
+  button:hover {
+    transform: scale(1.15) rotate(-2deg);
+    background: linear-gradient(45deg,#ff1493,#ff69b4);
+  }
+
+  input[type="date"] {
+    font-size: 1.5em;
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid #ff69b4;
+    margin-top: 10px;
+  }
+
+  /* Kuchen */
+  .cake-container {
+    position: relative;
+    width: 250px;
+    height: 300px;
+    margin: 150px auto 30px auto;
+  }
+  .cake {
+    width: 100%;
+    height: 150px;
+    background: #ffb6c1;
+    border-radius: 0 0 25px 25px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .frosting {
+    position: absolute;
+    top: -25px;
+    width: 100%;
+    height: 25px;
+    background: #fff0f5;
+    border-radius: 15px 15px 0 0;
+  }
+  .candle {
+    width: 25px;
+    height: 60px;
+    background: #ff1493;
+    position: absolute;
+    top: -40px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 5px;
+  }
+  .wick {
+    width: 2px;
+    height: 12px;
+    background: #000;
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  .flame {
+    width: 20px;
+    height: 30px;
+    background: orange;
+    border-radius: 50%;
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%) scaleY(1);
+    transform-origin: bottom;
+    opacity: 1;
+    animation: flicker 0.3s infinite;
+  }
+  .flame.off {
+    animation: blow 0.5s forwards;
+  }
+  @keyframes flicker {
+    0%,100% { transform: translateX(-50%) scaleY(1); }
+    50% { transform: translateX(-50%) scaleY(1.1); }
+  }
+  @keyframes blow {
+    0% { transform: translateX(-50%) scaleY(1); opacity:1; }
+    50% { transform: translateX(20px) scaleY(0.5); opacity:0.6; }
+    100% { transform: translateX(40px) scaleY(0); opacity:0; }
+  }
+
+  .cake-text {
+    position: absolute;
+    top: 40%;
+    font-family: 'Pacifico', cursive;
+    font-size: 2em;
+    color: #ff1493;
+    pointer-events: none;
+    animation: pulse 1s infinite alternate;
+  }
+  @keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+  }
+
+  /* Herz-Animation */
+  #hearts-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 0;
+  }
+  .heart {
+    position: absolute;
+    bottom: 0;
+    width: 25px;
+    height: 25px;
+    background: #ff69b4;
+    animation: floatUp 7s linear forwards;
+    opacity: 0.9;
+  }
+  .heart::before,
+  .heart::after {
+    content: '';
+    position: absolute;
+    width: 25px;
+    height: 25px;
+    background: #ff69b4;
+    border-radius: 50%;
+  }
+  .heart::before { top: -12px; left: 0; }
+  .heart::after { left: 12px; top: 0; }
+  @keyframes floatUp {
+    0% { transform: translateY(0); opacity:0.9; }
+    100% { transform: translateY(-800px); opacity:0; }
+  }
+
+  #content { margin-top: 20px; }
+
+  @keyframes fadeIn {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Diashow */
+  #slideshow {
+    position: relative;
+    width: 90%;
+    max-width: 800px;
+    height: 500px;
+    margin: 20px auto;
+    overflow: hidden;
+  }
+  #slideshow img {
+    position: absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 2s ease-in-out;
+  }
+  #slideshow img.active {
+    opacity: 1;
+  }
+</style>
+</head>
+<body>
+
+<div id="banner">Happy Birthday, Baby! ❤️</div>
+
+<div id="dateInput">
+  <h1>Wann sind wir zusammengekommen? 💖</h1>
+  <input type="date" id="date" />
+  <p id="error" style="color:red;"></p>
+  <br>
+  <button onclick="checkDate()">Oki Doki</button>
+</div>
+
+<div id="birthdayCake">
+
+  <div class="cake-container">
+    <div class="cake">
+      <div class="frosting"></div>
+      <div class="candle">
+        <div class="wick"></div>
+        <div class="flame"></div>
+      </div>
+      <div class="cake-text">Baddie</div>
+    </div>
+  </div>
+  <button onclick="toggleCandle()">Kerze auspusten / anzünden 🕯️</button>
+  <br>
+  <button onclick="showBirthdayContent()">ajde Baby</button>
+</div>
+
+<div id="birthdayContent">
+  <div class="menu">
+    <button onclick="showContent('text')">❤️ Text für dich</button>
+    <button onclick="showContent('slideshow')">📷 Unsere Erinnerungen 💕</button>
+    <button onclick="showContent('musik')">🎵 Unser Lieblingslied</button>
+  </div>
+  <div id="content"></div>
+  <div id="slideshow"></div>
+</div>
+
+<div id="hearts-container"></div>
+
+<script>
+// ---------- Datum ----------
+function checkDate() {
+  const input = document.getElementById("date").value;
+  const error = document.getElementById("error");
+  if(input === "2025-06-18") {
+    document.getElementById("banner").classList.add("show");
+    document.getElementById("dateInput").style.display = "none";
+    document.getElementById("birthdayCake").style.display = "block";
+    error.textContent = "";
+  } else {
+    error.textContent = "Hmm, das war nicht unser Tag 😘";
+  }
+}
+
+// ---------- Kerze ----------
+function toggleCandle() {
+  const flame = document.querySelector(".flame");
+  if(flame.classList.contains("off")){
+    flame.classList.remove("off");
+    flame.style.opacity = 1;
+  } else {
+    flame.classList.add("off");
+  }
+}
+
+// ---------- Weiter ----------
+function showBirthdayContent() {
+  document.getElementById("birthdayCake").style.display = "none";
+  document.getElementById("birthdayContent").style.display = "block";
+}
+
+// ---------- Text / Musik / Slideshow ----------
+function showContent(section) {
+  const content = document.getElementById("content");
+  const slideshow = document.getElementById("slideshow");
+  slideshow.innerHTML = "";
+  slideshow.style.display = "none";
+
+  if(section === "text") {
+    content.innerHTML = `
+      <h2 style="font-family:'Pacifico', cursive; color:#ff1493; margin-bottom:20px; font-size:2.5em; animation: fadeIn 1s;">Mein Engelchen ❤️</h2>
+      <p style="font-family:'Pacifico', cursive; color:#ff69b4; font-size:1.5em; line-height:1.6; margin:0 20px; animation: fadeIn 2s;">
+      Von dem Moment an, als wir uns begegnet sind, hat sich mein Leben auf eine Art verändert, die ich nie für möglich gehalten hätte. 
+      Du bist nicht nur die Person, die ich liebe, sondern auch meine beste Freundin, mein sicherer Hafen und meine größte Inspiration. 
+      Jeden Tag, den ich mit dir verbringe, wird mir bewusst, wie unglaublich glücklich ich mich schätzen kann, dich an meiner Seite zu wissen.<br><br>
+
+      Dein Lachen ist wie ein warmer Sonnenstrahl, der selbst die dunkelsten Tage erhellt. Deine Augen funkeln wie Sterne, die mir den Weg zeigen, egal wie chaotisch die Nacht auch sein mag. 
+      Ich liebe die Art, wie du mich zum Lächeln bringst, ohne dass du überhaupt etwas tust, und wie deine Worte immer genau das Richtige treffen, um mein Herz zu beruhigen.<br><br>
+
+      Du bist so viel mehr als nur die Summe deiner Eigenschaften. Du bist Stärke und Sanftheit zugleich, Mut und Wärme, Humor und Mitgefühl. 
+      In deiner Nähe fühle ich mich vollkommen, verstanden und geliebt – so, wie ich es niemals für möglich gehalten hätte.<br><br>
+
+      Jeder Augenblick mit dir ist kostbar. Ob wir lachen, träumen, reden oder einfach nur nebeneinander sitzen – alles wird durch dich besonders. 
+      Ich liebe deine Träume, deine Macken, deine Art die Welt zu sehen, und all die kleinen Dinge, die dich zu dir machen.<br><br>
+
+      Ich verspreche dir, dass ich immer versuchen werde, dich so zu lieben, wie du es verdienst: mit meinem ganzen Herzen, jeder Faser meiner Seele und mit allem, was ich bin. 
+      Danke, dass du mich liebst, mich inspirierst und mich zu der besten Version meiner selbst machst. Ich liebe dich – heute, morgen und für immer. ❤️
+      </p>
+    `;
+  } else if(section === "musik") {
+    content.innerHTML = `<h2>Unser Lieblingslied 🎵</h2>
+                         <iframe width="300" height="80" 
+                         src="https://www.youtube.com/embed/eVVG22ltRKM?autoplay=0" 
+                         title="Innit von Bunna B" frameborder="0" 
+                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                         allowfullscreen></iframe>
+                         <p style="font-family:'Pacifico', cursive; color:#ff69b4; margin-top:10px;">
+                         Unser Lieblingssong für dich ❤️
+                         </p>`;
+  } else if(section === "slideshow") {
+    content.innerHTML = "";
+    slideshow.style.display = "block";
+
+    const bilder = [
+      "bild1.jpeg","bild2.jpeg","bild3.jpeg","bild4.jpeg","bild5.jpeg",
+      "bild6.jpeg","bild7.jpeg","bild8.jpeg","bild9.jpeg","bild10.jpeg",
+      "bild11.jpeg","bild12.jpeg","bild13.jpeg","bild14.jpeg","bild15.jpeg",
+      "bild16.jpeg","bild17.jpeg","bild18.jpeg","bild19.jpeg"
+    ];
+
+    bilder.forEach(src => {
+      const img = document.createElement("img");
+      img.src = src;
+      slideshow.appendChild(img);
+    });
+
+    const slides = slideshow.querySelectorAll("img");
+    let current = 0;
+    slides[current].classList.add("active");
+
+    setInterval(() => {
+      slides[current].classList.remove("active");
+      current = (current + 1) % slides.length;
+      slides[current].classList.add("active");
+    }, 4000); // alle 4 Sekunden wechselt ein Bild
+  }
+}
+
+// ---------- Herzregen ----------
+const heartPositions = [];
+function createHeart() {
+  let left;
+  let tries = 0;
+  do {
+    left = Math.random() * (window.innerWidth - 35);
+    tries++;
+    if (tries > 50) break;
+  } while(heartPositions.some(pos => Math.abs(pos - left) < 35));
+
+  heartPositions.push(left);
+
+  const heart = document.createElement('div');
+  heart.classList.add('heart');
+  heart.style.left = left + 'px';
+  const size = Math.random() * 15 + 20;
+  heart.style.width = size + 'px';
+  heart.style.height = size + 'px';
+  document.getElementById('hearts-container').appendChild(heart);
+
+  setTimeout(() => {
+    heart.remove();
+    const index = heartPositions.indexOf(left);
+    if(index > -1) heartPositions.splice(index,1);
+  }, 7000);
+}
+setInterval(createHeart, 300);
+
+document.getElementById("dateInput").style.display = "block";
+</script>
+
+</body>
+</html>
