@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Geburtstagsgeschenk 💖</title>
+<link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Roboto&display=swap" rel="stylesheet">
+<style>
+  body {
+    font-family: 'Roboto', sans-serif;
+    text-align: center;
+    background: #fff0f5;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    min-height: 100vh;
+    overflow-x: hidden;
+    position: relative;
+  }
+  h1, h2 {
+    font-family: 'Pacifico', cursive;
+    font-size: clamp(2rem, 5vw, 3em);
+    margin: 20px 0;
+  }
+  #banner {
+    font-family: 'Pacifico', cursive; 
+    font-size: 3em;
+    color: #ff1493;
+    margin-bottom: 30px;
+    display: none;
+    opacity: 0;
+    transition: opacity 1s ease;
+  }
+  #banner.show { opacity:1; display:block; }
+  #dateInput, #birthdayCake, #birthdayContent {
+    display: none;
+    width: 100%;
+    max-width: 800px;
+  }
+  button {
+    margin: 20px auto;
+    padding: 20px 40px;
+    font-size: 1.8em;
+    border-radius: 20px;
+    border: none;
+    cursor: pointer;
+    background: linear-gradient(45deg,#ff69b4,#ffb6c1);
+    color: white;
+    transition: transform 0.3s, background 0.3s;
+    display: inline-block;
+  }
+  button:hover {
+    transform: scale(1.15) rotate(-2deg);
+    background: linear-gradient(45deg,#ff1493,#ff69b4);
+  }
+  input[type="date"] {
+    font-size: 1.5em;
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid #ff69b4;
+    margin-top: 10px;
+  }
+
+  /* Kuchen */
+  .cake-container { position: relative; width: 250px; height: 300px; margin: 150px auto 30px auto; }
+  .cake { width: 100%; height: 150px; background: #ffb6c1; border-radius: 0 0 25px 25px; position: relative; display: flex; align-items: center; justify-content: center; }
+  .frosting { position: absolute; top: -25px; width: 100%; height: 25px; background: #fff0f5; border-radius: 15px 15px 0 0; }
+  .candle { width: 25px; height: 60px; background: #ff1493; position: absolute; top: -40px; left: 50%; transform: translateX(-50%); border-radius: 5px; }
+  .wick { width: 2px; height: 12px; background: #000; position: absolute; top: -12px; left: 50%; transform: translateX(-50%); }
+  .flame { width: 20px; height: 30px; background: orange; border-radius: 50%; position: absolute; top: -30px; left: 50%; transform: translateX(-50%) scaleY(1); transform-origin: bottom; opacity: 1; animation: flicker 0.3s infinite; }
+  .flame.off { animation: blow 0.5s forwards; }
+  @keyframes flicker { 0%,100% { transform: translateX(-50%) scaleY(1); } 50% { transform: translateX(-50%) scaleY(1.1); } }
+  @keyframes blow { 0% { transform: translateX(-50%) scaleY(1); opacity:1; } 50% { transform: translateX(20px) scaleY(0.5); opacity:0.6; } 100% { transform: translateX(40px) scaleY(0); opacity:0; } }
+  .cake-text { position: absolute; top: 40%; font-family: 'Pacifico', cursive; font-size: 2em; color: #ff1493; pointer-events: none; animation: pulse 1s infinite alternate; }
+  @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+
+  /* Herz-Animation */
+  #hearts-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; z-index: 0; }
+  .heart { position: absolute; bottom: 0; width: 25px; height: 25px; background: #ff69b4; animation: floatUp 7s linear forwards; opacity: 0.9; }
+  .heart::before, .heart::after { content: ''; position: absolute; width: 25px; height: 25px; background: #ff69b4; border-radius: 50%; }
+  .heart::before { top: -12px; left: 0; } .heart::after { left: 12px; top: 0; }
+  @keyframes floatUp { 0% { transform: translateY(0); opacity:0.9; } 100% { transform: translateY(-800px); opacity:0; } }
+
+  #content { margin-top: 20px; }
+
+  @keyframes fadeIn { 0% { opacity: 0; transform: translateY(20px); } 100% { opacity: 1; transform: translateY(0); } }
+
+  /* Diashow */
+  #slideshow { position: relative; width: 90%; max-width: 800px; height: 500px; margin: 20px auto; overflow: hidden; }
+  #slideshow img { position: absolute; top:0; left:0; width:100%; height:100%; object-fit: cover; opacity: 0; transition: opacity 2s ease-in-out; }
+  #slideshow img.active { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- Hintergrundmusik -->
+<audio id="bg-music" src="romantic.mp3" loop></audio>
+
+<div id="banner">Happy Birthday, Baby! ❤️</div>
+
+<div id="dateInput">
+  <h1>Wann sind wir zusammengekommen? 💖</h1>
+  <input type="date" id="date" />
+  <p id="error" style="color:red;"></p>
+  <br>
+  <button onclick="checkDate()">Oki Doki❤️</button>
+</div>
+
+<div id="birthdayCake">
+  <div class="cake-container" style="position: relative; width: 300px; height: 300px; margin: 150px auto 30px auto;">
+    <!-- Hello Kitty Kuchen als Hintergrundbild -->
+    <img src="hellokitty.jpeg" style="width: 100%; border-radius: 20px; display: block; position: absolute; bottom: 0; left: 0; z-index: 1;">
+
+    <!-- Kerze -->
+    <div class="candle" style="width:25px; height:60px; background:#ff1493; position:absolute; top:-10px; left:50%; transform:translateX(-50%); border-radius:5px; z-index:2;">
+      <div class="wick" style="width:2px; height:12px; background:#000; position:absolute; top:-12px; left:50%; transform:translateX(-50%);"></div>
+      <div class="flame" style="width:20px; height:30px; background:orange; border-radius:50%; position:absolute; top:-30px; left:50%; transform:translateX(-50%) scaleY(1); transform-origin:bottom; opacity:1; animation:flicker 0.3s infinite;"></div>
+    </div>
+
+    <!-- Text mittig auf dem Kuchen -->
+    <div class="cake-text" style="position:absolute; top:177px; left:38%; transform:translateX(-50%); font-family:'Pacifico', cursive; font-size:1.5em; color:#ff1493; pointer-events:none; animation:pulse 1s infinite alternate; z-index:3;">Baddie</div>
+  </div>
+
+  <button onclick="showBirthdayContent()">Wünsch dir was Baby💕</button>
+</div>
+
+
+
+
+<div id="birthdayContent">
+  <div class="menu">
+    <button onclick="showContent('text')">Text für dich❤️</button>
+    <button onclick="showContent('slideshow')">📷 Unsere Erinnerungen 💕</button>
+    <button onclick="showContent('wrapped')"> Unser Beziehungs-Wrapped💌</button>
+	<button onclick="showContent('paint')"> Malen nach Zahlen🎨</button>
+	<button onclick="showContent('abschluss')">Abschluss 🎉🎉🎉</button>
+  
+  </div>
+  <div id="content"></div>
+  <div id="slideshow"></div>
+</div>
+
+<div id="hearts-container"></div>
+
+<script>
+// ---------- Musik starten ----------
+function startMusic() {
+  const music = document.getElementById('bg-music');
+  music.volume = 0.2;
+  music.play().catch(() => console.log("Autoplay blockiert, klicke einmal auf die Seite."));
+}
+
+// ---------- Datum ----------
+function checkDate() {
+  const input = document.getElementById("date").value;
+  const error = document.getElementById("error");
+  if(input === "2025-06-18") {
+    document.getElementById("banner").classList.add("show");
+    document.getElementById("dateInput").style.display = "none";
+    document.getElementById("birthdayCake").style.display = "block";
+    error.textContent = "";
+
+    // Musik starten
+    startMusic();
+  } else {
+    error.textContent = "Hmm, das war nicht unser Tag 😘";
+  }
+}
+
+// ---------- Kerze ----------
+function toggleCandle() {
+  const flame = document.querySelector(".flame");
+  flame.classList.toggle("off");
+}
+
+// ---------- Weiter ----------
+function showBirthdayContent() {
+  document.getElementById("birthdayCake").style.display = "none";
+  document.getElementById("birthdayContent").style.display = "block";
+}
+
+// Wrapped Steps
+let wrappedStep = 0;
+
+function showWrapped(step) {
+  const content = document.getElementById("content");
+  if(step === 0) {
+    content.innerHTML = `
+      <h2 style="font-family:'Pacifico', cursive; color:#ff1493; margin-bottom:20px;">💖 Unser Beziehungs-Wrapped 💖</h2>
+      <p id="liveTime" style="font-family:'Pacifico', cursive; color:#ff69b4; font-size:1.5em;"></p>
+      <button onclick="showWrapped(1)">Weiter ➡️</button>
+    `;
+    updateLiveTime();
+    setInterval(updateLiveTime, 1000);
+  } else if(step === 1) {
+
+  const questions = [
+    {
+      question: "Wann war unser erstes Date? 💖",
+      answers: ["22.05.2025", "18.06.2025", "30.08.2025"],
+      correct: 0,
+      img: "kurfurstendamm.jpeg"
+    },
+    {
+      question: "Wenn wir einen Tag wiederholen könnten, welcher wäre es? 🎨",
+      answers: ["erstes Date", "Keramik bemalen", "Laternenfestival"],
+      correct: 2,
+      img: "Schön.jpeg"
+    },
+    {
+      question: "Welches Lied erinnert dich am meisten an uns? ✨",
+      answers: ["Tap out", "TGIF", "WHIM WHAMIEE"],
+      correct: 0,
+      img: "lieder.jpeg"
+    },
+	{
+      question: "Welcher Moment zusammen würdest du für immer in einem Foto festhalten? ✨",
+      answers: [
+      "bild5.jpeg",
+      "bild6.jpeg",
+      "bild22.jpeg"
+    ],
+
+      correct: 0,
+	  isImageanswer: true
+    },
+  ];
+
+  let currentQuestion = 0;
+  let score = 0;
+
+  function playClickSound() {
+    const audio = new Audio("click.mp3"); // kleine Klick-Sounddatei
+    audio.volume = 0.2;
+    audio.play();
+  }
+
+  function showQuestion() {
+    const q = questions[currentQuestion];
+    content.innerHTML = `
+      <h2 style="font-family:'Pacifico', cursive; color:#ff1493;">💕 Mini-Quiz 💕</h2>
+      <p style="font-family:'Pacifico', cursive; color:#ff69b4; font-size:1.6em;">${q.question}</p>
+      ${q.img ? `<img src="${q.img}" style="width:80%; max-width:400px; border-radius:20px; margin-bottom:20px;">` : ""}
+      <div id="quizAnswers"></div>
+    `;
+
+    const answersDiv = document.getElementById("quizAnswers");
+
+   q.answers.forEach((answer, index) => {
+
+  // 👉 Prüfen ob es ein Bild ist
+  const isImage = /\.(jpg|jpeg|png|webp)$/i.test(answer);
+
+  const btn = document.createElement("button");
+  btn.style.margin = "10px";
+
+  if (isImage) {
+    // 🖼️ BILD-ANTWORT (NUR bei dieser Frage)
+    btn.style.background = "transparent";
+    btn.style.border = "none";
+    btn.style.padding = "0";
+
+    const img = document.createElement("img");
+    img.src = answer;
+    img.style.width = "200px";
+    img.style.borderRadius = "20px";
+    img.style.cursor = "pointer";
+    img.style.boxShadow = "0 6px 15px rgba(0,0,0,0.2)";
+
+    btn.appendChild(img);
+
+    btn.onclick = () => handleAnswer(index, img);
+
+  } else {
+    // 📝 NORMALE TEXT-ANTWORT (alle anderen Fragen)
+    btn.textContent = answer;
+    btn.onclick = () => handleAnswer(index, btn);
+  }
+
+  answersDiv.appendChild(btn);
+});
+
+function handleAnswer(index, element) {
+  playClickSound();
+  Array.from(answersDiv.children).forEach(b => b.disabled = true);
+
+  element.style.outline = index === q.correct
+    ? "6px solid #4CAF50"
+    : "6px solid #f44336";
+
+  if(index === q.correct) {
+    score++;
+    for(let i=0;i<5;i++) createHeart();
+  }
+
+  setTimeout(() => {
+    currentQuestion++;
+    currentQuestion < questions.length ? showQuestion() : showResult();
+  }, 900);
+}
+}
+  function showResult() {
+    content.innerHTML = `
+      <h2 style="font-family:'Pacifico', cursive; color:#ff1493;">🎉 Quiz beendet 🎉</h2>
+      <p style="font-family:'Pacifico', cursive; color:#ff69b4; font-size:1.5em;">
+        Du hast ${score} von ${questions.length} richtig 💖
+      </p>
+      <p style="font-family:'Pacifico', cursive; color:#ff69b4;">
+        Egal wie viele – du bist mein Lieblingsmensch 🥰
+      </p>
+      <button onclick="showWrapped(0)">⬅️ Zurück</button>
+      <button onclick="showWrapped(2)">Weiter ➡️</button>
+    `;
+
+    // Kleine Herz-Explosion, je nach Score
+    for(let i=0;i<score*5;i++) createHeart();
+  }
+
+  showQuestion();
+}  else if(step === 2) {
+    content.innerHTML = `
+      <h2 style="font-family:'Pacifico', cursive; color:#ff1493; margin-bottom:20px;">📅 Unsere Dates 📅</h2>
+      <div style="font-family:'Pacifico', cursive; color:#ff69b4; max-width:500px; margin:0 auto; font-size:1.3em;">
+        <div style="margin-bottom:30px;">
+          <p>22.05.2025 – Unser erstes Date 💖</p>
+          <img src="kurfurstendamm.jpeg" style="width:100%; border-radius:20px; box-shadow:0 8px 20px rgba(0,0,0,0.2); margin-top:10px;"><p>Unser erstes Treffen wird mir immer im kopf bleiben weil genau da ich gemerkt habe das ich die richtige gefunden habe - und ie Person bist du  💖 </p>
+        </div>
+        <div style="margin-bottom:30px;">
+          <p>30.08.2025 – Keramik bemalen ✨</p>
+          <img src="bild-Keramik.jpeg" style="width:100%; border-radius:20px; box-shadow:0 8px 20px rgba(0,0,0,0.2); margin-top:10px;"><p> 💖 </p>
+        </div>
+        <div style="margin-bottom:30px;">
+          <p>11.09.2025 – Kino 💕</p>
+          <img src="bild-kino.jpeg" style="width:100%; border-radius:20px; box-shadow:0 8px 20px rgba(0,0,0,0.2); margin-top:10px;">
+        </div>
+        <div style="margin-bottom:30px;">
+          <p>11.10.2025 – Festival of Lights 💕</p>
+          <img src="bild30.jpeg" style="width:100%; border-radius:20px; box-shadow:0 8px 20px rgba(0,0,0,0.2); margin-top:10px;">
+        </div>
+        <div style="margin-bottom:30px;">
+          <p>25.10.2025 – Laternenfestival 💕</p>
+          <img src="bild-laterne.jpeg" style="width:100%; border-radius:20px; box-shadow:0 8px 20px rgba(0,0,0,0.2); margin-top:10px;">
+        </div>
+		<div style="margin-bottom:30px;">
+          <p>18.12.2025 – 6 Monate zsm 💕</p>
+          <img src="bild41.jpeg" style="width:100%; border-radius:20px; box-shadow:0 8px 20px rgba(0,0,0,0.2); margin-top:10px;">
+        </div>
+      </div>
+      <button onclick="showWrapped(1)">⬅️ Zurück</button>
+    `;
+  }
+else if(section === "paint") {
+    slideshow.innerHTML = ""; 
+    slideshow.style.display = "none";
+    content.innerHTML = `
+      <h2 style="font-family:'Pacifico', cursive; color:#ff1493; margin-bottom:20px;">Malen nach Zahlen 🎨</h2>
+      <p style="font-family:'Pacifico', cursive; color:#ff69b4; font-size:1.2em;">
+        Wähle ein Bild aus, das wir zusammen ausmalen wollen!
+      </p>
+      <input type="file" id="uploadImage" accept="image/*" style="margin-bottom:15px;">
+      <canvas id="paintCanvas" width="500" height="500" style="border:2px solid #ff69b4; border-radius:20px; display:block; margin:auto;"></canvas>
+      <div id="colorPalette" style="margin-top:15px; text-align:center;"></div>
+    `;
+
+    const canvas = document.getElementById("paintCanvas");
+    const ctx = canvas.getContext("2d");
+    const paletteDiv = document.getElementById("colorPalette");
+    let selectedColor = null;
+    let grid = [];
+    const gridSize = 20; // 20x20 Raster
+
+    document.getElementById("uploadImage").addEventListener("change", function(e){
+        const file = e.target.files[0];
+        if(!file) return;
+        const img = new Image();
+        img.onload = function(){
+            // Bild ins Canvas zeichnen (Skaliert)
+            ctx.clearRect(0,0,canvas.width,canvas.height);
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+            // Raster erstellen
+            const cellSize = canvas.width / gridSize;
+            grid = [];
+            let colorsSet = new Set();
+            for(let y=0; y<gridSize; y++){
+                grid[y] = [];
+                for(let x=0; x<gridSize; x++){
+                    const imageData = ctx.getImageData(x*cellSize, y*cellSize, 1, 1).data;
+                    const color = `rgb(${imageData[0]},${imageData[1]},${imageData[2]})`;
+                    grid[y][x] = color;
+                    colorsSet.add(color);
+                    ctx.strokeStyle = "#ccc";
+                    ctx.strokeRect(x*cellSize, y*cellSize, cellSize, cellSize);
+                    ctx.fillStyle = "#fff";
+                    ctx.fillRect(x*cellSize, y*cellSize, cellSize, cellSize);
+                }
+            }
+
+            // Farbpalette erstellen
+            paletteDiv.innerHTML = "";
+            const colors = Array.from(colorsSet);
+            colors.forEach(color => {
+                const btn = document.createElement("button");
+                btn.style.background = color;
+                btn.style.width = "40px";
+                btn.style.height = "40px";
+                btn.style.margin = "5px";
+                btn.style.border = "2px solid #333";
+                btn.onclick = () => selectedColor = color;
+                paletteDiv.appendChild(btn);
+            });
+
+            selectedColor = colors[0]; // erste Farbe vorausgewählt
+        }
+        img.src = URL.createObjectURL(file);
+    });
+
+    // Klicken auf Canvas
+    canvas.addEventListener("click", function(e){
+        if(!selectedColor) return;
+        const rect = canvas.getBoundingClientRect();
+        const cellSize = canvas.width / gridSize;
+        const x = Math.floor((e.clientX - rect.left) / cellSize);
+        const y = Math.floor((e.clientY - rect.top) / cellSize);
+
+        if(grid[y][x] === selectedColor){
+            ctx.fillStyle = selectedColor;
+            ctx.fillRect(x*cellSize, y*cellSize, cellSize, cellSize);
+            ctx.strokeStyle = "#ccc";
+            ctx.strokeRect(x*cellSize, y*cellSize, cellSize, cellSize);
+        }
+    });
+}
+}
+
+function updateLiveTime() {
+  const startDate = new Date("2025-06-18T00:00:00");
+  const now = new Date();
+  const diff = now - startDate;
+  const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+  const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+  const minutes = Math.floor((diff / (1000 * 60)) % 60);
+  const seconds = Math.floor((diff / 1000) % 60);
+  const liveTime = document.getElementById("liveTime");
+  if(liveTime) liveTime.textContent = `Wir sind seit ${days} Tagen, ${hours} Stunden, ${minutes} Minuten und ${seconds} Sekunden zusammen 💖`;
+}
+
+// Text / Slideshow
+function showContent(section) {
+  const content = document.getElementById("content");
+  const slideshow = document.getElementById("slideshow");
+  if(section === "text") {
+    slideshow.innerHTML = ""; slideshow.style.display = "none";
+    content.innerHTML = `<h2 style="font-family:'Pacifico', cursive; color:#ff1493; margin-bottom:20px;">My Shayla ❤️</h2>
+    <p style="font-family:'Pacifico', cursive; color:#ff69b4; font-size:1.5em; line-height:1.6; margin:0 20px;">
+      Von dem Moment an, als wir uns begegnet sind, hat sich mein Leben auf eine Art verändert, die ich nie für möglich gehalten hätte. 
+      Du bist und bleibst die wichtigste Person in meinem ganzen Leben, du machst mich jeden tag glücklicher und glücklicher und das nur wegen dir. Ich bin dankbar dich in meinem Leben zu haben.
+      Jeden Tag, den ich mit dir verbringe, wird mir bewusst, wie unglaublich glücklich ich mich schätzen kann, dich an meiner Seite zu haben.<br><br> 
+
+      Dein Lachen ist das schönste Lachen auf der Welt, wenn du lachst verliere ich mich in deinem Lächeln. Wenn ich in deine Augen gucke sehe ich wie deine Augen funkeln wie Sterne, genau in diese Augen hab ich mich verliebt und werde mich immer und immer wieder neu verlieben. 
+      Ich liebe die Art, wie du mich zum Lächeln bringst, ohne dass du überhaupt etwas tust, und wie deine Worte immer genau das Richtige treffen, um mich glücklich zu machen.<br><br>
+
+      Du bist so viel mehr als du dir vostellen kannst. Du bist eine so starke Frau und bringst so viel gute Sachen mit dir, die mir zeigen was für ein tolle Freundin du bist. 
+      In deiner Nähe fühle ich mich verstanden und geliebt – so, wie ich es niemals für möglich gehalten hätte.<br><br>
+
+      Jeder Augenblick mit dir ist kostbar. Ob wir lachen, träumen, reden oder einfach nur nebeneinander sitzen – alles wird durch dich besonders. 
+      Ich liebe deinen Charakter, deine Macken, deine Art wie du mit mir umgehst, und all die kleinen Dinge, die dich zu dir machen.<br><br>
+
+      Ich verspreche dir, dass ich immer bei dir sein werde, egal wie schlecht es dir geht oder wie weit du weg bist. Ich bin dankbar dich in meinem leben zu haben und ich werd alles tun damit du glücklich bist.  
+      Danke für alles was du alles für mich getan hast oder in zukunft noch tuen wirst.Ich liebe dich – heute, morgen und für immer. ∞❤️</p>`;
+  } else if(section === "slideshow") {
+    content.innerHTML = ""; slideshow.style.display = "block";
+    const bilder = ["bild3.jpeg","bild21.jpeg","bild20.jpeg","bild6.jpeg","bild25.jpeg","bild10.jpeg","bild12.jpeg","bild2.jpeg","bild13.jpeg","bild14.jpeg","bild22.jpeg","bild15.jpeg","bild17.jpeg","bild5.jpeg","bild18.jpeg","bild23.jpeg","bild24.jpeg","bild44.jpeg","bild26.jpeg","bild27.jpeg","bild28.jpeg","bild30.jpeg","bild34.jpeg","bild35.jpeg","bild36.jpeg","bild37.jpeg","bild39.jpeg","bild40.jpeg","bild41.jpeg","bild38.jpeg","bild42.jpeg","bild43.jpeg","bild45.jpeg"];
+    bilder.forEach(src => { const img = document.createElement("img"); img.src = src; slideshow.appendChild(img); });
+    const slides = slideshow.querySelectorAll("img"); let current = 0; slides[current].classList.add("active");
+    setInterval(() => { slides[current].classList.remove("active"); current = (current + 1) % slides.length; slides[current].classList.add("active"); }, 4000);
+  } else if(section === "wrapped") { showWrapped(0); }
+else if(section === "paint"){
+  slideshow.innerHTML = ""; 
+  slideshow.style.display = "none";
+  content.innerHTML = `
+    <h2 style="font-family:'Pacifico', cursive; color:#ff1493; margin-bottom:20px;">Malen nach Zahlen 🎨</h2>
+    <p style="font-family:'Pacifico', cursive; color:#ff69b4;">Wähle ein Bild und male es Schritt für Schritt!</p>
+    <input type="file" id="uploadImage" accept="image/*" style="margin-bottom:15px;">
+    <canvas id="paintCanvas" width="500" height="500" style="border:2px solid #ff69b4; display:block; margin:auto;"></canvas>
+  `;
+
+  const canvas = document.getElementById("paintCanvas");
+  const ctx = canvas.getContext("2d");
+  const gridSize = 20;
+  let stepGrid = [];
+  const steps = ["Hintergrund","Figuren","Details"]; // Schritt-Namen
+
+  document.getElementById("uploadImage").addEventListener("change", function(e){
+    const file = e.target.files[0]; 
+    if(!file) return;
+
+    const img = new Image();
+    img.onload = function(){
+      // Canvasgröße an Bild anpassen, aber max 500x500
+      const scale = Math.min(canvas.width / img.width, canvas.height / img.height);
+      const imgWidth = img.width * scale;
+      const imgHeight = img.height * scale;
+      const offsetX = (canvas.width - imgWidth) / 2;
+      const offsetY = (canvas.height - imgHeight) / 2;
+
+      // Schritt-Grid erstellen (Zufall für Demo, kann man manuell anpassen)
+      stepGrid = [];
+      for(let y=0; y<gridSize; y++){
+        stepGrid[y] = [];
+        for(let x=0; x<gridSize; x++){
+          stepGrid[y][x] = Math.floor(Math.random()*steps.length)+1;
+        }
+      }
+
+      // Raster zeichnen: Nummern sichtbar, Kästchen leer
+      function drawGrid(){
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        const cellWidth = imgWidth / gridSize;
+        const cellHeight = imgHeight / gridSize;
+
+        for(let y=0;y<gridSize;y++){
+          for(let x=0;x<gridSize;x++){
+            ctx.fillStyle="#fff";
+            ctx.fillRect(offsetX + x*cellWidth, offsetY + y*cellHeight, cellWidth, cellHeight);
+            ctx.strokeStyle="#ccc";
+            ctx.strokeRect(offsetX + x*cellWidth, offsetY + y*cellHeight, cellWidth, cellHeight);
+            ctx.fillStyle="#000";
+            ctx.font=`${Math.min(cellWidth,cellHeight)/2}px Arial`;
+            ctx.textAlign="center"; ctx.textBaseline="middle";
+            ctx.fillText(stepGrid[y][x], offsetX + x*cellWidth + cellWidth/2, offsetY + y*cellHeight + cellHeight/2);
+          }
+        }
+      }
+
+      drawGrid();
+
+      let currentStep = 1;
+
+      canvas.addEventListener("click", function(e){
+        const rect = canvas.getBoundingClientRect();
+        const cellWidth = imgWidth / gridSize;
+        const cellHeight = imgHeight / gridSize;
+        const x = Math.floor((e.clientX - rect.left - offsetX)/cellWidth);
+        const y = Math.floor((e.clientY - rect.top - offsetY)/cellHeight);
+
+        if(x<0 || y<0 || x>=gridSize || y>=gridSize) return;
+
+        if(stepGrid[y][x] === currentStep){
+          // Bildausschnitt aus Originalbild kopieren
+          const sx = img.width * (x/gridSize);
+          const sy = img.height * (y/gridSize);
+          const sWidth = img.width / gridSize;
+          const sHeight = img.height / gridSize;
+          ctx.drawImage(img, sx, sy, sWidth, sHeight, offsetX + x*cellWidth, offsetY + y*cellHeight, cellWidth, cellHeight);
+
+          // Nummer auf Kästchen beibehalten
+          ctx.fillStyle="#000";
+          ctx.font=`${Math.min(cellWidth,cellHeight)/2}px Arial`;
+          ctx.textAlign="center"; ctx.textBaseline="middle";
+          ctx.fillText(stepGrid[y][x], offsetX + x*cellWidth + cellWidth/2, offsetY + y*cellHeight + cellHeight/2);
+        }
+
+        // Prüfen, ob Schritt fertig
+        let done = true;
+        const imgData = ctx.getImageData(offsetX, offsetY, imgWidth, imgHeight).data;
+        for(let yy=0; yy<gridSize; yy++){
+          for(let xx=0; xx<gridSize; xx++){
+            const sx = offsetX + xx*cellWidth;
+            const sy = offsetY + yy*cellHeight;
+            const data = ctx.getImageData(sx, sy, 1, 1).data;
+            if(stepGrid[yy][xx] === currentStep && data[3]===255 && data[0]===255 && data[1]===255 && data[2]===255){
+              done=false;
+            }
+          }
+        }
+      });
+    }
+
+    img.src = URL.createObjectURL(file);
+  });
+}
+else if (section === "abschluss") {
+  // Overlay
+  const overlay = document.createElement("div");
+  overlay.style.position = "fixed";
+  overlay.style.inset = 0;
+  overlay.style.background = "#fff0f5";
+  overlay.style.display = "flex";
+  overlay.style.flexDirection = "column";
+  overlay.style.alignItems = "center";
+  overlay.style.justifyContent = "center";
+  overlay.style.textAlign = "center";
+  overlay.style.zIndex = 1000;
+  overlay.style.overflow = "hidden";
+  document.body.appendChild(overlay);
+
+  // Herz im Hintergrund
+  const heartBg = document.createElement("div");
+  heartBg.innerHTML = "❤️";
+  heartBg.style.position = "absolute";
+  heartBg.style.top = "50%";
+  heartBg.style.left = "50%";
+  heartBg.style.transform = "translate(-50%, -50%)";
+  heartBg.style.fontSize = "60vw";
+  heartBg.style.opacity = "0.18";
+  heartBg.style.color = "red";
+  heartBg.style.filter = "saturate(2)";
+  overlay.appendChild(heartBg);
+
+  // Herz-Puls Animation
+  const style = document.createElement("style");
+  style.innerHTML = `
+    @keyframes softPulse {
+      0%   { transform: translate(-50%, -50%) scale(1); }
+      50%  { transform: translate(-50%, -50%) scale(1.03); }
+      100% { transform: translate(-50%, -50%) scale(1); }
+    }
+  `;
+  document.head.appendChild(style);
+  heartBg.style.animation = "softPulse 4s ease-in-out infinite";
+
+  // Textbox
+  const textBox = document.createElement("div");
+  textBox.style.position = "relative";
+  textBox.style.maxWidth = "85%";
+  textBox.style.color = "white";
+  textBox.style.fontFamily = "Pacifico, cursive";
+  textBox.style.fontSize = "1.3em";
+  textBox.style.lineHeight = "1.6";
+  overlay.appendChild(textBox);
+
+  // Textzeilen
+  const lines = [
+    "My Shayla,",
+    "seit dem Tag, an dem du in mein Leben gekommen bist,",
+	"fühlst sich alles mit dir so perfekt an.",
+    "Du machst mich jeden Tag glücklich,",
+    "jeden Augenblick wertvoll und jedes Lachen unvergesslich.",
+    "Ich bin unglaublich dankbar dich zu haben",
+	"und dankbar für jeden Augeneblick, den ich mit dir teilen darf.",
+    "Ich liebe dich – mehr, als Worte je ausdrücken könnten. ❤️"
+
+  ];
+
+  // Zeilen nacheinander einblenden
+  lines.forEach((line, i) => {
+    const p = document.createElement("p");
+    p.textContent = line;
+    p.style.opacity = 0;
+    p.style.margin = "0.6em 0";
+    p.style.transition = "opacity 1s ease";
+    textBox.appendChild(p);
+
+    setTimeout(() => {
+      p.style.opacity = 1;
+    }, i * 1200);
+  });
+
+  // Abschlusswort
+  const closing = document.createElement("h2");
+  closing.textContent = "Ich liebe liebe liebe dich über alles askim  ❤️";
+  closing.style.marginTop = "1.5em";
+  closing.style.opacity = 0;
+  closing.style.transition = "opacity 1s ease";
+  closing.style.fontSize = "1.6em";
+  textBox.appendChild(cling = closing);
+
+  setTimeout(() => {
+    closing.style.opacity = 1;
+  }, lines.length * 1200 + 500);
+}
+
+
+} 
+
+// Herzregen
+const heartPositions = [];
+function createHeart() {
+  let left; let tries = 0;
+  do { left = Math.random() * (window.innerWidth - 35); tries++; if(tries > 50) break; }
+  while(heartPositions.some(pos => Math.abs(pos - left) < 35));
+  heartPositions.push(left);
+  const heart = document.createElement('div');
+  heart.classList.add('heart'); heart.style.left = left + 'px';
+  const size = Math.random() * 15 + 20; heart.style.width = size + 'px'; heart.style.height = size + 'px';
+  document.getElementById('hearts-container').appendChild(heart);
+  setTimeout(() => { heart.remove(); const index = heartPositions.indexOf(left); if(index > -1) heartPositions.splice(index,1); }, 7000);
+}
+setInterval(createHeart, 300);
+
+document.getElementById("dateInput").style.display = "block";
+</script>
+
+</body>
+</html>
